@@ -1,0 +1,9 @@
+#
+shims-vue.d.ts
+mock
+cspell.json
+jest.config.js
+postcss.config.js
+settings.json
+cypress/**
+dist/**

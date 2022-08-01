@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+input[type=text] input[type=password] input[type=email] input[type=number] input[type=url] input[type=date] input[type=datetime-local] input[type=month] input[type=week] input[type=time] input[type=search] input[type=tel] input[type=checkbox] input[type=radio] select select[multiple] textarea * {
+  box-sizing: border-box;
+}
+
+.h1-bold {
+  @apply tw-text-5xl tw-font-bold tw-text-titleBlack;
+}
+
+.h2-bold {
+  @apply tw-text-4xl tw-font-bold tw-text-titleBlack;
+}
+
+.h3-bold {
+  @apply tw-text-2xl tw-font-bold;
+}
+
+.h3 {
+  @apply tw-text-2xl;
+}
+
+.h4-bold {
+  @apply tw-text-lg tw-font-bold;
+}
+
+.h4 {
+  @apply tw-text-lg;
+}
+
+.p-base {
+  @apply tw-text-base;
+}
+
+.card-border-left {
+  @apply tw-border-secondaryColor tw-border-solid tw-border-t-2 tw-border-l-2 tw-border-b-2 tw-border-opacity-20  tw-rounded-tl-3xl tw-rounded-bl-3xl;
+}
+
+.card-border-right {
+  @apply tw-border-secondaryColor tw-border-solid tw-border-t-2 tw-border-r-2 tw-border-b-2 tw-border-opacity-20 tw-rounded-tr-3xl tw-rounded-br-3xl;
+}
+
+.card-border {
+  @apply tw-border-secondaryColor tw-border-solid tw-border-2 tw-rounded-3xl tw-border-opacity-20 tw-rounded-tr-3xl tw-rounded-br-3xl;
+}
+
+.flex-col {
+  @apply tw-flex tw-flex-col;
+}
+
+.flex-col-center {
+  @apply tw-flex tw-flex-col tw-items-center tw-justify-center;
+}
+
+.flex-center {
+  @apply tw-flex tw-items-center tw-justify-center;
+}
+
+.h-screen--20 {
+  height: calc(100vh - 5rem);
+}
+
+.background-gradient {
+  @apply tw-bg-gradient-to-br tw-from-white tw-to-backgroundBlueColorOpacity;
+}
+
+.p-inputtext {
+  @apply tw-text-sm  tw-border-primaryColor tw-h-8 tw-rounded-md;
+}
+
+.glass {
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.btn-primary {
+  @apply tw-bg-primaryColor tw-max-w-md tw-h-9 tw-w-2/6 tw-text-sm  tw-rounded-full;
+}
+
+.btn-primary-gradient {
+  @apply tw-bg-gradient-to-tr tw-from-primaryColor tw-to-secondaryColor;
+}
+
+.btn-primary-hollow {
+  @apply tw-max-w-md tw-w-2/6 tw-text-sm tw-h-9 tw-rounded-full tw-bg-white tw-text-primaryColor;
+}
+
+.gray-card-header {
+  @apply tw-px-5 tw-py-3 tw-bg-tableTitle tw-border-b tw-border-gray;
+}
+
+.detail-container {
+  @apply tw-w-full tw-p-4 tw-flex tw-flex-col tw-gap-4 tw-pb-10;
+}
+
+.main-container {
+  @apply tw-w-full
+tw-flex
+tw-flex-col
+tw-justify-center
+tw-border
+tw-border-gray
+tw-shadow-md;
+}
+
+.detail-search-option-items {
+  @apply tw-flex tw-w-5/6 tw-items-center tw-justify-between;
+}
+
+.primary-drop-down {
+  @apply tw-w-60 tw-rounded-lg tw-border-primaryColor;
+}
+
+.p-dropdown-label,
+.p-dropdown-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #1c80cf !important;
+}
+
+.p-accordion-header-link,
+.p-accordion .p-accordion-tab:last-child .p-accordion-content {
+  border: none;
+  border-radius: 0;
+}
+
+.progress-bar {
+  position: fixed !important;
+  top: 0;
+}
+
+.p-accordion-tab .p-accordion-header .p-accordion-header-link {
+  background-color: #e3e3e3;
+  height: auto;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link {
+  padding: 0.3rem;
+  font-weight: 400 !important;
+}
+
+.p-accordion .p-accordion-tab:first-child .p-accordion-header .p-accordion-header-link {
+  border-radius: 0px;
+}
+
+.p-accordion .p-accordion-tab:last-child .p-accordion-header .p-accordion-header-link {
+  border-radius: 0px;
+}
+
+.p-accordion .p-accordion-content {
+  color: black;
+}
+
+.p-password-input,
+.p-inputtext {
+  border-radius: 8px;
+  height: 2rem;
+}
+
+.otp-input {
+  @apply tw-text-center tw-w-16 tw-border-b-2 tw-border-primaryColor tw-border-t-0 tw-border-l-0 tw-border-r-0 focus:tw-outline-none focus:tw-ring-0 focus:tw-border-primaryColor tw-text-3xl;
+}
+
+.incorrect-otp-input {
+  @apply tw-text-center tw-w-16 tw-border-b-2 tw-border-dangerColor tw-border-t-0 tw-border-l-0 tw-border-r-0 focus:tw-outline-none focus:tw-ring-0 focus:tw-border-dangerColor tw-text-3xl tw-text-dangerColor;
+}
+
+.p-paginator {
+  display: flex !important;
+  justify-content: flex-start;
+  padding: 0.4rem;
+  height: auto;
+}
+.p-paginator .p-paginator-rpp-options {
+  @apply tw-text-sm  tw-border-primaryColor  tw-rounded-full;
+}
+.p-paginator .p-paginator-rpp-options {
+  height: 2rem !important;
+  display: flex;
+  align-items: center;
+}
+.p-paginator .p-paginator-rpp-options .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  color: #1c80cf !important;
+}
+.p-paginator .p-paginator-rpp-options .p-dropdown-label::after {
+  padding-left: 10px;
+  content: "items per page";
+  color: black;
+}
+.p-paginator .p-paginator-current {
+  color: black !important;
+}
+.p-paginator .p-paginator-element {
+  color: #1c80cf !important;
+}
+.p-paginator .p-dropdown-label {
+  @apply tw-text-sm   tw-border-primaryColor;
+}
+.p-paginator .p-dropdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*  tw- prefix should be added to all classes in order prevent conflict between */
+/* tow UI frameworks */
+@tailwind utilities;/*# sourceMappingURL=index.css.map */

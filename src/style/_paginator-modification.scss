@@ -1,0 +1,39 @@
+.p-paginator {
+	display: flex !important;
+	justify-content: flex-start;
+	padding: 0.4rem;
+	height: auto;
+	.p-paginator-rpp-options {
+		@apply tw-text-sm  tw-border-primaryColor  tw-rounded-full;
+	}
+	.p-paginator-rpp-options {
+		height: 2rem !important;
+		display: flex;
+		align-items: center;
+		.p-dropdown-label {
+			display: flex;
+			align-items: center;
+			color: $primaryColor !important;
+			&::after {
+				padding-left: 10px;
+				content: 'items per page';
+				color: black;
+			}
+		}
+	}
+
+	.p-paginator-current {
+		color: black !important;
+	}
+	.p-paginator-element {
+		color: $primaryColor !important;
+	}
+	.p-dropdown-label {
+		@apply tw-text-sm   tw-border-primaryColor;
+	}
+	.p-dropdown {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}

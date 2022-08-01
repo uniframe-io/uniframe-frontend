@@ -1,0 +1,106 @@
+on:
+  push:
+    branches:
+      - develop
+
+name: Deploy to UniFrame DEV
+
+jobs:
+  deploy:
+    name: Continuous Delivery
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: dev
+      AWS_ACCOUNT_ID: '492579162332'
+      AWS_PARAMS_PREFIX: uniframe
+      AWS_CD_ROLE: uniframe-dev-cd-service-role
+      AWS_ENV_REGION: eu-west-1
+      EKS_NAMESPACE: nm
+      VUE_APP_GOOGLE_ANALYTICS_ID: 'G-88GCXNTL61'   
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.UNIFRAME_CD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.UNIFRAME_CD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Load aws-cli
+        id: aws-cli
+        run: |
+          pip --no-cache-dir install awscli==1.19.72
+          aws sts assume-role --role-arn "arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_CD_ROLE }}" --role-session-name github-actions-cd --external-id github.com | tee >(echo "AccessKeyId=$(jq .Credentials.AccessKeyId | tr -d '"')" >> $GITHUB_ENV)  >(echo "SessionToken=$( jq .Credentials.SessionToken | tr -d '"')" >> $GITHUB_ENV ) >(echo "SecretAccessKey=$(jq .Credentials.SecretAccessKey | tr -d '"')" >> $GITHUB_ENV )
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.UNIFRAME_CD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.UNIFRAME_CD_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_ENV_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AccessKeyId }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.SecretAccessKey }}
+          AWS_SESSION_TOKEN: ${{ env.SessionToken }}
+
+      - name: Get Related Params from AWS Parameter store
+        id: get-aws-params
+        run: |
+          aws ssm get-parameters --names "${{ env.AWS_PARAMS_PREFIX }}-${{ env.DEPLOY_ENV }}-ssm-frontend-repo-name" --query "Parameters[*].Value | [0]" | echo "ECR_REPOSITORY=$(tr -d '"')" >> $GITHUB_ENV
+          aws ssm get-parameters --names "${{ env.AWS_PARAMS_PREFIX }}-${{ env.DEPLOY_ENV }}-ssm-eks-domain-name" --query "Parameters[*].Value | [0]" | echo "DNS_NAME=$(tr -d '"')" >> $GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AccessKeyId }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.SecretAccessKey }}
+          AWS_SESSION_TOKEN: ${{ env.SessionToken }}
+
+      - name: Get Related Params from AWS Secret manager
+        id: get-aws-secret
+        run: |
+          echo $(aws secretsmanager get-secret-value --secret-id ${{ env.AWS_PARAMS_PREFIX }}-${{ env.DEPLOY_ENV }}-oauth-github-client-secret --region eu-west-1 --query SecretString --output text) | jq .OAUTH2_GITHUB_CLIENT_ID | echo "OAUTH2_GITHUB_CLIENT_ID=$(tr -d '"')" >> $GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AccessKeyId }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.SecretAccessKey }}
+          AWS_SESSION_TOKEN: ${{ env.SessionToken }}
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build --build-arg DNS_NAME=${{ env.DNS_NAME }} --build-arg HTTP_SCHEMA=https --build-arg OAUTH2_GITHUB_CLIENT_ID=${OAUTH2_GITHUB_CLIENT_ID} --build-arg VUE_APP_GOOGLE_ANALYTICS_ID=${{ env.VUE_APP_GOOGLE_ANALYTICS_ID }} --build-arg VUE_APP_ENVIRONMENT=${{ env.DEPLOY_ENV }} -t $ECR_REGISTRY/$ECR_REPOSITORY . -f Dockerfile.k8s
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Install kubectl
+        id: install-kubectl
+        run: |
+          # follow this instruction: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl
+          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list        
+          sudo apt-get update
+          sudo apt-get install -y kubectl
+
+      - name: Update EKS deployment images
+        id: update-eks-image
+        run: |
+          EKS_NAME=$(aws ssm get-parameters --names ${{ env.AWS_PARAMS_PREFIX }}-${{ env.DEPLOY_ENV }}-ssm-eks-cluster-name --query "Parameters[0].Value" | tr -d '"')
+          aws eks update-kubeconfig --name ${EKS_NAME}
+          kubectl set image -n ${{ env.EKS_NAMESPACE }} deployment/uniframe-${{ env.DEPLOY_ENV }}-frontend-deployment frontend=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AccessKeyId }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.SecretAccessKey }}
+          AWS_SESSION_TOKEN: ${{ env.SessionToken }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}        

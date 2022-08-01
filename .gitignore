@@ -1,0 +1,43 @@
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+#Mock server related files
+/mock
+
+#weekly moms and personal notes will be edited here 
+/weeklyMeetingsMemos
+/*.notes
+/markdown-cheat-sheet.md
+/target
+/src/router/routingErrors.md
+/cypress/videos
+/src/router/routingErrors.md
+/src/router/routingErrors.md
+/cypress/integration/examples
+/cypress/screenshots
+/note.notes
+/test.txt
+/importTaiwindColors.js
+/mail-html.html

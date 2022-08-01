@@ -1,0 +1,11 @@
+{
+  "rainbowTags.colors": [
+    "BlanchedAlmond",
+    "lightpink",
+    "GreenYellow",
+    "LightSeaGreen"
+  ],
+  "rainbowTags.allowEverywhere": true,
+  "workbench.tree.indent": 10,
+  "git.ignoreLimitWarning": true
+}
